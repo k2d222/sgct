@@ -6,6 +6,10 @@
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
+#include "sgct/math.h"
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/fwd.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <sgct/projection/nonlinearprojection.h>
 
 #include <sgct/callbackdata.h>
@@ -410,15 +414,20 @@ void NonLinearProjection::renderCubeFace(const Window& win, BaseViewport& vp, in
         attachTextures(idx);
     }
 
+    glm::mat4 proj;
+    std::memcpy(glm::value_ptr(proj), vp.projection(mode).projectionMatrix().values, sizeof(sgct::mat4));
+    proj = glm::scale(proj, glm::vec3(-1.f, -1.f, -1.f));
+    sgct::mat4 sgctProj;
+    std::memcpy(sgctProj.values, glm::value_ptr(proj), sizeof(sgct::mat4));
+
     const RenderData renderData(
         win,
         vp,
         mode,
         ClusterManager::instance().sceneTransform(),
         vp.projection(mode).viewMatrix(),
-        vp.projection(mode).projectionMatrix(),
-        vp.projection(mode).viewProjectionMatrix() *
-            ClusterManager::instance().sceneTransform(),
+        sgctProj,
+        ClusterManager::instance().sceneTransform(),
         _cubemapResolution
     );
     glLineWidth(1.f);
