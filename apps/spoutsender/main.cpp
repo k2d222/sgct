@@ -2,14 +2,13 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
+#include "box.h"
 #include <sgct/sgct.h>
 #include <sgct/opengl.h>
-#include <sgct/utils/box.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -22,7 +21,7 @@
 #include <SpoutLibrary.h>
 
 namespace {
-    std::unique_ptr<sgct::utils::Box> box;
+    std::unique_ptr<Box> box;
     GLint matrixLoc = -1;
     GLuint texture = 0;
 
@@ -69,7 +68,7 @@ namespace {
 
 using namespace sgct;
 
-void draw(RenderData data) {
+void draw(const RenderData& data) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
@@ -87,7 +86,8 @@ void draw(RenderData data) {
         static_cast<float>(currentTime * (Speed / 2.0)),
         glm::vec3(1.f, 0.f, 0.f)
     );
-    const glm::mat4 mvp = glm::make_mat4(data.modelViewProjectionMatrix.values) * scene;
+    const glm::mat4 mvp =
+        glm::make_mat4(data.modelViewProjectionMatrix.values.data()) * scene;
 
     glActiveTexture(GL_TEXTURE0);
     const ShaderProgram& prog = ShaderManager::instance().shaderProgram("xform");
@@ -113,10 +113,10 @@ void postDraw() {
         const bool isLeft = windowData[i].second;
 
         const std::unique_ptr<Window>& win = Engine::instance().windows()[winIndex];
-        const GLuint texId = win->frameBufferTexture(
-            isLeft ? Window::TextureIndex::LeftEye : Window::TextureIndex::RightEye
-        );
-
+        const GLuint texId =
+            isLeft ?
+            win->frameBufferTextureEye(Eye::MonoOrLeft) :
+            win->frameBufferTextureEye(Eye::Right);
         glBindTexture(GL_TEXTURE_2D, texId);
 
         spoutSendersData[i].spoutSender->SendTexture(
@@ -141,8 +141,6 @@ void preWindowInit() {
 
     const std::vector<std::unique_ptr<Window>>& win = Engine::instance().windows();
     for (int i = 0; i < win.size(); i++) {
-        win[i]->setFixResolution(true);
-
         if (win[i]->isStereo()) {
             senderNames.push_back(baseName + std::to_string(i) + "_Left");
             windowData.push_back(std::pair(i, true));
@@ -179,7 +177,7 @@ void initOGL(GLFWwindow*) {
 
     texture = TextureManager::instance().loadTexture("box.png", true);
 
-    box = std::make_unique<utils::Box>(2.f, utils::Box::TextureMappingMode::Regular);
+    box = std::make_unique<Box>(2.f, Box::TextureMappingMode::Regular);
 
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);

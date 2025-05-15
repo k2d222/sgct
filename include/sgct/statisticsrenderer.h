@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -24,7 +24,7 @@ public:
     ~StatisticsRenderer();
 
     void update();
-    void render(const Window& window, const Viewport& viewport);
+    void render(const Window& window, const Viewport& viewport) const;
 
     float scale() const;
     void setScale(float scale);

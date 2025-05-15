@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -11,7 +11,7 @@
 
 #include <sgct/sgctexports.h>
 #include <sgct/log.h>
-#include <sgct/settings.h>
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <vector>
@@ -26,14 +26,15 @@ struct SGCT_EXPORT Configuration {
     std::optional<int> nodeId;
     std::optional<bool> firmSync;
     std::optional<bool> ignoreSync;
-    std::optional<Settings::CaptureFormat> captureFormat;
     std::optional<int> nCaptureThreads;
-    std::optional<bool> exportCorrectionMeshes;
-    std::optional<std::string> screenshotPath;
+    std::optional<std::filesystem::path> screenshotPath;
     std::optional<std::string> screenshotPrefix;
     std::optional<bool> addNodeNameInScreenshot;
     std::optional<bool> omitWindowNameInScreenshot;
     std::optional<bool> useOpenGLDebugContext;
+
+    std::optional<bool> printWaitMessage;
+    std::optional<float> waitTimeout;
 };
 
 /**

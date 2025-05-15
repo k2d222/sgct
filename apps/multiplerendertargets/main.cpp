@@ -2,20 +2,19 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
+#include "box.h"
 #include <sgct/sgct.h>
 #include <sgct/opengl.h>
-
-#include <sgct/utils/box.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace {
-    std::unique_ptr<sgct::utils::Box> box;
+    std::unique_ptr<Box> box;
 
     // variables to share across cluster
     double currentTime = 0.0;
@@ -95,9 +94,10 @@ void draw(const RenderData& data) {
         glm::vec3(1.f, 0.f, 0.f)
     );
 
-    const glm::mat4 mvp = glm::make_mat4(data.modelViewProjectionMatrix.values) * scene;
-    const glm::mat4 mv = glm::make_mat4(data.viewMatrix.values) *
-        glm::make_mat4(data.modelMatrix.values) * scene;
+    const glm::mat4 mvp =
+        glm::make_mat4(data.modelViewProjectionMatrix.values.data()) * scene;
+    const glm::mat4 mv = glm::make_mat4(data.viewMatrix.values.data()) *
+        glm::make_mat4(data.modelMatrix.values.data()) * scene;
     const glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(mv));
 
     glActiveTexture(GL_TEXTURE0);
@@ -142,7 +142,7 @@ void initOGL(GLFWwindow*) {
     prg.bind();
     textureId = TextureManager::instance().loadTexture("box.png", true, 8.f);
 
-    box = std::make_unique<utils::Box>(2.f, utils::Box::TextureMappingMode::Regular);
+    box = std::make_unique<Box>(2.f, Box::TextureMappingMode::Regular);
 
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);

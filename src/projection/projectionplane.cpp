@@ -2,16 +2,13 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
 #include <sgct/projection/projectionplane.h>
 
 #include <utility>
-
-// @TODO (abock, 2019-10-15) There seems to be an issue with the rendering of the
-// z coordinate of the place is 0 even if the user position is not a zero
 
 namespace sgct {
 

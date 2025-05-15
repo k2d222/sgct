@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -17,8 +17,6 @@ namespace sgct {
 
 class SGCT_EXPORT Image {
 public:
-    enum class FormatType { PNG = 0, JPEG, TGA, Unknown };
-
     Image() = default;
     ~Image();
 
@@ -42,15 +40,6 @@ public:
     void setBytesPerChannel(int bpc);
 
 private:
-    /**
-     * Compression levels 1-9.
-     *   -1 = Default compression
-     *    0 = No compression
-     *    1 = Best speed
-     *    9 = Best compression
-     */
-    void savePNG(const std::filesystem::path& filename, int compressionLevel = -1);
-
     int _nChannels = 0;
     ivec2 _size = ivec2{ 0, 0 };
     unsigned int _dataSize = 0;

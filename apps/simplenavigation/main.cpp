@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -378,10 +378,10 @@ void draw(const RenderData& data) {
 
     glDisable(GL_DEPTH_TEST);
 
-    drawXZGrid(glm::make_mat4(data.modelViewProjectionMatrix.values));
+    drawXZGrid(glm::make_mat4(data.modelViewProjectionMatrix.values.data()));
 
     for (int i = 0; i < NumberOfPyramids; i++) {
-        drawPyramid(glm::make_mat4(data.modelViewProjectionMatrix.values), i);
+        drawPyramid(glm::make_mat4(data.modelViewProjectionMatrix.values.data()), i);
     }
 
     glEnable(GL_DEPTH_TEST);

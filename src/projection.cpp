@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -40,18 +40,19 @@ void Projection::calculateProjection(vec3 base, const ProjectionPlane& proj,
     const glm::vec3 planeZ = glm::normalize(glm::cross(planeX, planeY));
 
     // calculate plane rotation using Direction Cosine Matrix (DCM)
-    glm::mat3 dcm;
-    dcm[0][0] = glm::dot(planeX, glm::vec3(1.f, 0.f, 0.f));
-    dcm[0][1] = glm::dot(planeX, glm::vec3(0.f, 1.f, 0.f));
-    dcm[0][2] = glm::dot(planeX, glm::vec3(0.f, 0.f, 1.f));
+    const glm::mat3 dcm = glm::mat3(
+        glm::dot(planeX, glm::vec3(1.f, 0.f, 0.f)),
+        glm::dot(planeX, glm::vec3(0.f, 1.f, 0.f)),
+        glm::dot(planeX, glm::vec3(0.f, 0.f, 1.f)),
 
-    dcm[1][0] = glm::dot(planeY, glm::vec3(1.f, 0.f, 0.f));
-    dcm[1][1] = glm::dot(planeY, glm::vec3(0.f, 1.f, 0.f));
-    dcm[1][2] = glm::dot(planeY, glm::vec3(0.f, 0.f, 1.f));
+        glm::dot(planeY, glm::vec3(1.f, 0.f, 0.f)),
+        glm::dot(planeY, glm::vec3(0.f, 1.f, 0.f)),
+        glm::dot(planeY, glm::vec3(0.f, 0.f, 1.f)),
 
-    dcm[2][0] = glm::dot(planeZ, glm::vec3(1.f, 0.f, 0.f));
-    dcm[2][1] = glm::dot(planeZ, glm::vec3(0.f, 1.f, 0.f));
-    dcm[2][2] = glm::dot(planeZ, glm::vec3(0.f, 0.f, 1.f));
+        glm::dot(planeZ, glm::vec3(1.f, 0.f, 0.f)),
+        glm::dot(planeZ, glm::vec3(0.f, 1.f, 0.f)),
+        glm::dot(planeZ, glm::vec3(0.f, 0.f, 1.f))
+    );
 
     // invert & transform
     const glm::mat3 invDcm = glm::inverse(dcm);

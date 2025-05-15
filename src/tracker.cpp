@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -78,7 +78,7 @@ void Tracker::setOffset(vec3 offset) {
     _offset = std::move(offset);
     glm::mat4 trans =
         glm::translate(glm::mat4(1.f), glm::make_vec3(&_offset.x)) *
-        glm::make_mat4(_orientation.values);
+        glm::make_mat4(_orientation.values.data());
     std::memcpy(&_transform, glm::value_ptr(trans), 16 * sizeof(float));
 }
 
@@ -94,7 +94,7 @@ void Tracker::setTransform(mat4 mat) {
     _transform = std::move(mat);
 }
 
-mat4 Tracker::getTransform() const {
+mat4 Tracker::transform() const {
     const std::unique_lock lock(mutex::Tracking);
     return _transform;
 }

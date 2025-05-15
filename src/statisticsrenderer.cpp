@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -89,8 +89,8 @@ StatisticsRenderer::StatisticsRenderer(const Engine::Statistics& statistics)
 
     // Setup shaders
     _shader = ShaderProgram("General Statistics Shader");
-    _shader.addShaderSource(StatsVertShader, GL_VERTEX_SHADER);
-    _shader.addShaderSource(StatsFragShader, GL_FRAGMENT_SHADER);
+    _shader.addVertexShader(StatsVertShader);
+    _shader.addFragmentShader(StatsFragShader);
     _shader.createAndLinkProgram();
     _shader.bind();
     _mvpLoc = glGetUniformLocation(_shader.id(), "mvp");
@@ -267,7 +267,7 @@ void StatisticsRenderer::update() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void StatisticsRenderer::render(const Window& window, const Viewport& viewport) {
+void StatisticsRenderer::render(const Window& window, const Viewport& viewport) const {
     ZoneScoped;
 
     const ivec2 res = window.framebufferResolution();
@@ -434,25 +434,24 @@ void StatisticsRenderer::render(const Window& window, const Viewport& viewport) 
 
         auto renderHistogram = [&](int i, const vec4& color) {
             const auto [pos, size] = [this](int j) -> std::tuple<glm::vec2, glm::vec2> {
-                const glm::vec2 pos = glm::vec2(400.f * _scale, 10.f * _scale);
-                const glm::vec2 size = glm::vec2(425.f *_scale, 200.f * _scale);
+                const glm::vec2 p = glm::vec2(400.f * _scale, 10.f * _scale);
+                const glm::vec2 s = glm::vec2(425.f *_scale, 200.f * _scale);
 
                 if (j == 0) {
                     // Full size
-                    return { pos, size };
+                    return { p, s };
                 }
                 else {
                     // Half size in a grid
                     const int idx = j - 1;
-                    const glm::vec2 tSize = size / 2.f;
+                    const glm::vec2 tSize = s / 2.f;
                     const float iMod = static_cast<float>(idx % 2);
                     const float iDiv = static_cast<float>(idx / 2);
                     const glm::vec2 offset = glm::vec2(
                         (tSize.x + 10.f) * iMod,
                         (tSize.y + 10.f) * iDiv
                     );
-                    const glm::vec2 p = pos + offset;
-                    return { p + glm::vec2(size.x + 10.f, 0.f), tSize };
+                    return { p + offset + glm::vec2(s.x + 10.f, 0.f), tSize };
                 }
             }(i);
 

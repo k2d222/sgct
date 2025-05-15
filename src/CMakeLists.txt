@@ -2,7 +2,7 @@
 # SGCT                                                                                   #
 # Simple Graphics Cluster Toolkit                                                        #
 #                                                                                        #
-# Copyright (c) 2012-2024                                                                #
+# Copyright (c) 2012-2025                                                                #
 # For conditions of distribution and use, see copyright notice in LICENSE.md             #
 ##########################################################################################
 
@@ -43,13 +43,13 @@ target_sources(
     ${PROJECT_SOURCE_DIR}/include/sgct/commandline.h
     ${PROJECT_SOURCE_DIR}/include/sgct/config.h
     ${PROJECT_SOURCE_DIR}/include/sgct/correctionmesh.h
+    ${PROJECT_SOURCE_DIR}/include/sgct/definitions.h
     ${PROJECT_SOURCE_DIR}/include/sgct/engine.h
     ${PROJECT_SOURCE_DIR}/include/sgct/error.h
     ${PROJECT_SOURCE_DIR}/include/sgct/format.h
     ${PROJECT_SOURCE_DIR}/include/sgct/font.h
     ${PROJECT_SOURCE_DIR}/include/sgct/fontmanager.h
     ${PROJECT_SOURCE_DIR}/include/sgct/freetype.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/frustum.h
     ${PROJECT_SOURCE_DIR}/include/sgct/image.h
     ${PROJECT_SOURCE_DIR}/include/sgct/internalshaders.h
     ${PROJECT_SOURCE_DIR}/include/sgct/joystick.h
@@ -66,10 +66,8 @@ target_sources(
     ${PROJECT_SOURCE_DIR}/include/sgct/opengl.h
     ${PROJECT_SOURCE_DIR}/include/sgct/profiling.h
     ${PROJECT_SOURCE_DIR}/include/sgct/projection.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/readconfig.h
     ${PROJECT_SOURCE_DIR}/include/sgct/screencapture.h
     ${PROJECT_SOURCE_DIR}/include/sgct/sgct.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/settings.h
     ${PROJECT_SOURCE_DIR}/include/sgct/shadermanager.h
     ${PROJECT_SOURCE_DIR}/include/sgct/shaderprogram.h
     ${PROJECT_SOURCE_DIR}/include/sgct/shareddata.h
@@ -90,19 +88,13 @@ target_sources(
     ${PROJECT_SOURCE_DIR}/include/sgct/correction/sciss.h
     ${PROJECT_SOURCE_DIR}/include/sgct/correction/simcad.h
     ${PROJECT_SOURCE_DIR}/include/sgct/correction/skyskan.h
+    ${PROJECT_SOURCE_DIR}/include/sgct/projection/cubemap.h
     ${PROJECT_SOURCE_DIR}/include/sgct/projection/cylindrical.h
     ${PROJECT_SOURCE_DIR}/include/sgct/projection/equirectangular.h
     ${PROJECT_SOURCE_DIR}/include/sgct/projection/fisheye.h
     ${PROJECT_SOURCE_DIR}/include/sgct/projection/nonlinearprojection.h
     ${PROJECT_SOURCE_DIR}/include/sgct/projection/projectionplane.h
     ${PROJECT_SOURCE_DIR}/include/sgct/projection/sphericalmirror.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/projection/spout.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/projection/spoutflat.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/utils/box.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/utils/dome.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/utils/domegrid.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/utils/plane.h
-    ${PROJECT_SOURCE_DIR}/include/sgct/utils/sphere.h
 
     $<$<BOOL:${SGCT_OPENVR_SUPPORT}>:${PROJECT_SOURCE_DIR}/include/sgct/openvr.h>
     $<$<BOOL:${SGCT_VRPN_SUPPORT}>:${PROJECT_SOURCE_DIR}/include/sgct/trackingmanager.h>
@@ -127,9 +119,7 @@ target_sources(
     offscreenbuffer.cpp
     profiling.cpp
     projection.cpp
-    readconfig.cpp
     screencapture.cpp
-    settings.cpp
     shadermanager.cpp
     shaderprogram.cpp
     shareddata.cpp
@@ -148,19 +138,13 @@ target_sources(
     correction/sciss.cpp
     correction/simcad.cpp
     correction/skyskan.cpp
+    projection/cubemap.cpp
     projection/cylindrical.cpp
     projection/equirectangular.cpp
     projection/fisheye.cpp
     projection/nonlinearprojection.cpp
     projection/projectionplane.cpp
     projection/sphericalmirror.cpp
-    projection/spout.cpp
-    projection/spoutflat.cpp
-    utils/box.cpp
-    utils/dome.cpp
-    utils/domegrid.cpp
-    utils/plane.cpp
-    utils/sphere.cpp
 
     $<$<BOOL:${SGCT_OPENVR_SUPPORT}>:openvr.cpp>
     $<$<BOOL:${SGCT_VRPN_SUPPORT}>:trackingmanager.cpp>
@@ -195,7 +179,6 @@ find_package(glad REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 find_package(minizip REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(PNG REQUIRED)
 find_package(scn REQUIRED)
@@ -235,8 +218,10 @@ target_link_libraries(sgct
     sgct::stb
     tinyxml2::tinyxml2
     nlohmann_json::nlohmann_json
-    $<$<BOOL:${SGCT_VRPN_SUPPORT}>:vrpn>
     nlohmann_json_schema_validator::nlohmann_json_schema_validator
+    $<$<BOOL:${SGCT_DEP_INCLUDE_SCALABLE}>:scalable>
+    $<$<BOOL:${SGCT_VRPN_SUPPORT}>:vrpn>
+    $<$<BOOL:${SGCT_NDI_SUPPORT}>:ndi>
 )
 
 target_compile_definitions(sgct
@@ -246,7 +231,9 @@ target_compile_definitions(sgct
     $<$<BOOL:${SGCT_SPOUT_SUPPORT}>:SGCT_HAS_SPOUT>
     $<$<BOOL:${SGCT_MEMORY_PROFILING}>:SGCT_OVERRIDE_NEW_AND_DELETE>
   PRIVATE
+    $<$<BOOL:${SGCT_DEP_INCLUDE_SCALABLE}>:SGCT_HAS_SCALABLE>
     $<$<BOOL:${SGCT_VRPN_SUPPORT}>:SGCT_HAS_VRPN>
+    $<$<BOOL:${SGCT_NDI_SUPPORT}>:SGCT_HAS_NDI>
     $<$<BOOL:${WIN32}>:_CRT_SECURE_NO_WARNINGS>
 )
 
@@ -268,16 +255,16 @@ endif ()
 
 if (SGCT_INSTALL)
   include(GNUInstallDirs)
-  install(TARGETS sgct EXPORT sgctTargets 
+  install(TARGETS sgct EXPORT sgctTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     FILE_SET HEADERS DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
   install(
-    EXPORT sgctTargets 
+    EXPORT sgctTargets
     FILE sgctTargets.cmake
-    NAMESPACE sgct:: 
+    NAMESPACE sgct::
     DESTINATION ${CMAKE_INSTALL_DATADIR}/sgct
   )
   install(

@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -101,7 +101,7 @@ Buffer generateScalableMesh(const std::filesystem::path& path, BaseViewport& par
 
     Log::Info(std::format("Reading scalable mesh data from '{}'", path));
 
-    std::ifstream file(path);
+    std::ifstream file = std::ifstream(path);
     if (!file.good()) {
         throw Error(
             Error::Component::Scalable, 2060, std::format("Failed to open '{}'", path)
@@ -271,7 +271,7 @@ Buffer generateScalableMesh(const std::filesystem::path& path, BaseViewport& par
             data.label = std::string(rest);
         }
         else if (first == "APPLY_MASK") {
-            data.applyMask = std::stoi(std::string(rest));
+            data.applyMask = std::stoi(std::string(rest)) != 0;
             if (data.applyMask) {
                 Log::Warning(std::format(
                     "Mesh '{}' requested to apply a mask. Currently this is handled "
@@ -281,7 +281,7 @@ Buffer generateScalableMesh(const std::filesystem::path& path, BaseViewport& par
             }
         }
         else if (first == "APPLY_BLACK_LEVEL") {
-            data.applyBlackLevel = std::stoi(std::string(rest));
+            data.applyBlackLevel = std::stoi(std::string(rest)) != 0;
             if (data.applyBlackLevel) {
                 Log::Warning(std::format(
                     "Mesh '{}' requested to apply a blacklevel image. Currently this is "
@@ -291,7 +291,7 @@ Buffer generateScalableMesh(const std::filesystem::path& path, BaseViewport& par
             }
         }
         else if (first == "APPLY_COLOR") {
-            data.applyColor = std::stoi(std::string(rest));
+            data.applyColor = std::stoi(std::string(rest)) != 0;
             if (data.applyBlackLevel) {
                 Log::Warning(std::format(
                     "Mesh '{}' requested to apply an overlay image. Currently this is "
@@ -403,7 +403,6 @@ Buffer generateScalableMesh(const std::filesystem::path& path, BaseViewport& par
             }
             const std::string_view s = rest.substr(0, sep);
             rest = rest.substr(sep + 1);
-
             sep = rest.find(' ');
             if (sep == std::string_view::npos) {
                 throw Error(

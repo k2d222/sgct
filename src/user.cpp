@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -16,7 +16,17 @@
 
 namespace sgct {
 
-User::User(std::string name) : _name(std::move(name)) {}
+User::User(const config::User& user)
+    : _name(user.name.value_or(std::string("default")))
+    , _eyeSeparation(user.eyeSeparation.value_or(0.06f))
+    , _posMono(user.position.value_or(vec3{ 0.f, 0.f, 0.f }))
+    , _transform(user.transformation.value_or(mat4(1.0)))
+    , _headTrackerDeviceName(user.tracking ? user.tracking->device : std::string())
+    , _headTrackerName(user.tracking ? user.tracking->tracker : std::string())
+{
+    updateEyeTransform();
+    updateEyeSeparation();
+}
 
 void User::setPos(vec3 pos) {
     _posMono = std::move(pos);
@@ -65,11 +75,11 @@ void User::updateEyeSeparation() {
 
 void User::updateEyeTransform() {
     const glm::vec4 eyeOffsetVec(_eyeSeparation / 2.f, 0.f, 0.f, 0.f);
-    const glm::vec4 posMono = glm::vec4(0.f, 0.f, 0.f, 1.f);
+    const glm::vec4 posMono = glm::vec4(_posMono.x, _posMono.y, _posMono.z, 1.f);
     const glm::vec4 posLeft = posMono - eyeOffsetVec;
     const glm::vec4 posRight = posMono + eyeOffsetVec;
 
-    const glm::mat4 trans = glm::make_mat4(_transform.values);
+    const glm::mat4 trans = glm::make_mat4(_transform.values.data());
 
     const glm::vec4 mono = trans * posMono;
     const glm::vec4 left = trans * posLeft;

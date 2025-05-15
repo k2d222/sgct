@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -110,9 +110,9 @@ FontManager::FontManager() {
 #elif defined(__APPLE__)
     // System Fonts
     SystemFontPath = "/System/Library/Fonts/";
-#else
+#else // !WIN32 && !__APPLE__
     SystemFontPath = "/usr/share/fonts/truetype/freefont/";
-#endif
+#endif // WIN32
 }
 
 FontManager::~FontManager() {
@@ -132,7 +132,7 @@ void FontManager::bindShader(const mat4& mvp, const vec4& color, int texture) co
 
     glUniform4fv(_colorLocation, 1, &color.x);
     glUniform1i(_textureLocation, texture);
-    glUniformMatrix4fv(_mvpLocation, 1, GL_FALSE, mvp.values);
+    glUniformMatrix4fv(_mvpLocation, 1, GL_FALSE, mvp.values.data());
 }
 
 bool FontManager::addFont(std::string name, std::string file) {
@@ -199,8 +199,8 @@ std::unique_ptr<Font> FontManager::createFont(const std::string& name, int heigh
     static bool isShaderCreated = false;
     if (!isShaderCreated) {
         _shader = ShaderProgram("FontShader");
-        _shader.addShaderSource(FontVertShader, GL_VERTEX_SHADER);
-        _shader.addShaderSource(FontFragShader, GL_FRAGMENT_SHADER);
+        _shader.addVertexShader(FontVertShader);
+        _shader.addFragmentShader(FontFragShader);
         _shader.createAndLinkProgram();
         _shader.bind();
 

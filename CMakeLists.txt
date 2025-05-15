@@ -2,7 +2,7 @@
 # SGCT                                                                                   #
 # Simple Graphics Cluster Toolkit                                                        #
 #                                                                                        #
-# Copyright (c) 2012-2024                                                                #
+# Copyright (c) 2012-2025                                                                #
 # For conditions of distribution and use, see copyright notice in LICENSE.md             #
 ##########################################################################################
 
@@ -41,7 +41,8 @@ option(SGCT_TRACY_SUPPORT "Build SGCT with Tracy" OFF)
 option(SGCT_MEMORY_PROFILING "Override new and delete for memory profiling in Tracy" OFF)
 
 if (WIN32)
-  option(SGCT_SPOUT_SUPPORT "SGCT Spout support" OFF)
+  option(SGCT_SPOUT_SUPPORT "SGCT Spout support" ON)
+  option(SGCT_NDI_SUPPORT "SGCT NDI Support" ON)
 endif ()
 
 # Exceptions for external libraries
@@ -61,6 +62,10 @@ option(SGCT_DEP_INCLUDE_TINYXML "Include TinyXML library" ON)
 option(SGCT_DEP_INCLUDE_TRACY "Include Tracy library" OFF)
 option(SGCT_DEP_INCLUDE_VRPN "Include VRPN library" OFF)
 option(SGCT_DEP_INCLUDE_ZLIB "Include ZLIB library" ON)
+
+if (WIN32)
+  option(SGCT_DEP_INCLUDE_SCALABLE "Include Scalable SDK" ON)
+endif ()
 
 if (WIN32)
   option(SGCT_ENABLE_EDIT_CONTINUE "Enable Edit&Continue" ON)

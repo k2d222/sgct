@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -16,7 +16,7 @@
 #include <sgct/tracker.h>
 #ifdef SGCT_HAS_VRPN
 #include <sgct/trackingmanager.h>
-#endif
+#endif // SGCT_HAS_VRPN
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -57,7 +57,7 @@ void TrackingDevice::setNumberOfAxes(int numOfAxes) {
 void TrackingDevice::setSensorTransform(vec3 vec, quat rot) {
 #ifdef SGCT_HAS_VRPN
     Tracker* parent = TrackingManager::instance().trackers()[_parentIndex].get();
-#else
+#else // ^^^^ SGCT_HAS_VRPN // !SGCT_HAS_VRPN vvvv
     Tracker* parent = nullptr;
 #endif
 
@@ -66,7 +66,7 @@ void TrackingDevice::setSensorTransform(vec3 vec, quat rot) {
         return;
     }
 
-    const glm::mat4 parentTrans = glm::make_mat4(parent->getTransform().values);
+    const glm::mat4 parentTrans = glm::make_mat4(parent->transform().values.data());
 
     // create matrixes
     const glm::mat4 sensorTransMat = glm::translate(
@@ -87,7 +87,7 @@ void TrackingDevice::setSensorTransform(vec3 vec, quat rot) {
 
         _worldTransformPrevious = std::move(_worldTransform);
         const glm::mat4 m = parentTrans * sensorTransMat * sensorRotMat *
-                            glm::make_mat4(_deviceTransform.values);
+                            glm::make_mat4(_deviceTransform.values.data());
         std::memcpy(&_worldTransform, glm::value_ptr(m), 16 * sizeof(float));
     }
     setTrackerTimeStamp();
@@ -194,14 +194,14 @@ double TrackingDevice::analogPrevious(int index) const {
 
 vec3 TrackingDevice::position() const {
     const std::unique_lock lock(mutex::Tracking);
-    const glm::mat4 m = glm::make_mat4(_worldTransform.values);
+    const glm::mat4 m = glm::make_mat4(_worldTransform.values.data());
     const glm::vec3 p = glm::vec3(m[3]);
     return sgct::vec3(p.x, p.y, p.z);
 }
 
 vec3 TrackingDevice::previousPosition() const {
     const std::unique_lock lock(mutex::Tracking);
-    const glm::mat4 m = glm::make_mat4(_worldTransformPrevious.values);
+    const glm::mat4 m = glm::make_mat4(_worldTransformPrevious.values.data());
     const glm::vec3 p = glm::vec3(m[3]);
     return sgct::vec3(p.x, p.y, p.z);
 }
@@ -209,26 +209,29 @@ vec3 TrackingDevice::previousPosition() const {
 vec3 TrackingDevice::eulerAngles() const {
     const std::unique_lock lock(mutex::Tracking);
     const glm::vec3 v =
-        glm::eulerAngles(glm::quat_cast(glm::make_mat4(_worldTransform.values)));
+        glm::eulerAngles(glm::quat_cast(glm::make_mat4(_worldTransform.values.data())));
     return sgct::vec3(v.x, v.y, v.z);
 }
 
 vec3 TrackingDevice::eulerAnglesPrevious() const {
     const std::unique_lock lock(mutex::Tracking);
     const glm::vec3 v =
-        glm::eulerAngles(glm::quat_cast(glm::make_mat4(_worldTransformPrevious.values)));
+        glm::eulerAngles(
+            glm::quat_cast(glm::make_mat4(_worldTransformPrevious.values.data()))
+        );
     return sgct::vec3(v.x, v.y, v.z);
 }
 
 quat TrackingDevice::rotation() const {
     const std::unique_lock lock(mutex::Tracking);
-    const glm::quat q = glm::quat_cast(glm::make_mat4(_worldTransform.values));
+    const glm::quat q = glm::quat_cast(glm::make_mat4(_worldTransform.values.data()));
     return quat(q.x, q.y, q.z, q.w);
 }
 
 quat TrackingDevice::rotationPrevious() const {
     const std::unique_lock lock(mutex::Tracking);
-    const glm::quat q = glm::quat_cast(glm::make_mat4(_worldTransformPrevious.values));
+    const glm::quat q =
+        glm::quat_cast(glm::make_mat4(_worldTransformPrevious.values.data()));
     return quat(q.x, q.y, q.z, q.w);
 }
 

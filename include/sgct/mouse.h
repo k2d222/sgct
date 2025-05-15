@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -27,11 +27,11 @@ enum class MouseButton {
     ButtonLeft = Button1,
     ButtonRight = Button2,
     ButtonMiddle = Button3
-#else
+#else // ^^^^ WIN32 // !WIN32 vvvv
     ButtonLeft = 0,
     ButtonRight = 1,
     ButtonMiddle = 2
-#endif
+#endif // WIN32
 };
 } // namespace sgct
 

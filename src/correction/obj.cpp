@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -39,7 +39,7 @@ Buffer generateOBJMesh(const std::filesystem::path& path) {
 
     Log::Info(std::format("Reading Wavefront OBJ mesh data from '{}'", path));
 
-    std::ifstream file(path);
+    std::ifstream file = std::ifstream(path);
     if (!file.good()) {
         throw Error(
             Error::Component::OBJ, 2030, std::format("Failed to open '{}'", path)

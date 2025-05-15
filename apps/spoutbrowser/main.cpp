@@ -2,13 +2,13 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
+#include "box.h"
 #include <sgct/sgct.h>
 #include <sgct/opengl.h>
-#include <sgct/utils/box.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -165,7 +165,7 @@ void draw(const RenderData& data) {
         glGetUniformLocation(prog.id(), "texSize"),
         senders[currentSender].width, senders[currentSender].height
     );
-    ivec2 res = data.window.resolution();
+    ivec2 res = data.window.windowResolution();
     glUniform2i(glGetUniformLocation(prog.id(), "windowSize"), res.x, res.y);
 
     glBindVertexArray(vao);

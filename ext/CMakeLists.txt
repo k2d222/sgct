@@ -2,23 +2,27 @@
 # SGCT                                                                                   #
 # Simple Graphics Cluster Toolkit                                                        #
 #                                                                                        #
-# Copyright (c) 2012-2024                                                                #
+# Copyright (c) 2012-2025                                                                #
 # For conditions of distribution and use, see copyright notice in LICENSE.md             #
 ##########################################################################################
 
-if (SGCT_DEP_INCLUDE_CATCH2)
-  add_subdirectory(catch2)
-  # Catch2 by default compiles with C++14, which leads to some linker errors:
-  # https://github.com/catchorg/Catch2/issues/2046
-  target_compile_features(Catch2 PUBLIC cxx_std_20)
-  target_compile_features(Catch2WithMain PUBLIC cxx_std_20)
-  set_property(TARGET Catch2 PROPERTY FOLDER "External")
-  set_property(TARGET Catch2WithMain PROPERTY FOLDER "External")
-  sgct_register_package(Catch2 Catch2::Catch2)
-elseif (TARGET Catch2::Catch2)
-  sgct_register_package(Catch2 Catch2::Catch2)
-else ()
-  find_package(Catch2 REQUIRED)
+if (SGCT_BUILD_TESTS)
+  if (SGCT_DEP_INCLUDE_CATCH2)
+    add_subdirectory(catch2)
+    # Catch2 by default compiles with C++14, which leads to some linker errors:
+    # https://github.com/catchorg/Catch2/issues/2046
+    # Switching to cxx_std_23 triggers a bug in Clang17
+    # https://github.com/llvm/llvm-project/issues/61415
+    target_compile_features(Catch2 PUBLIC cxx_std_20)
+    target_compile_features(Catch2WithMain PUBLIC cxx_std_20)
+    set_property(TARGET Catch2 PROPERTY FOLDER "External")
+    set_property(TARGET Catch2WithMain PROPERTY FOLDER "External")
+    sgct_register_package(Catch2 Catch2::Catch2)
+  elseif (TARGET Catch2::Catch2)
+    sgct_register_package(Catch2 Catch2::Catch2)
+  else ()
+    find_package(Catch2 REQUIRED)
+  endif ()
 endif ()
 
 if (SGCT_DEP_INCLUDE_GLAD)
@@ -136,9 +140,9 @@ endif ()
 
 if (SGCT_DEP_INCLUDE_TINYXML)
   set(BUILD_TESTING OFF)
+  set(tinyxml2_INSTALL_PKGCONFIG OFF CACHE BOOL "" FORCE)
   add_subdirectory(tinyxml)
   set_target_properties(tinyxml2 PROPERTIES FOLDER "External")
-  add_library(tinyxml2::tinyxml2 ALIAS tinyxml2)
   sgct_register_package(tinyxml2 tinyxml2::tinyxml2)
 elseif (TARGET tinyxml2)
   sgct_register_package(tinyxml2 tinyxml2::tinyxml2)
@@ -207,9 +211,7 @@ if (SGCT_TRACY_SUPPORT)
 endif ()
 
 if (SGCT_DEP_INCLUDE_JSON)
-  add_library(nlohmann_json INTERFACE)
-  add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json)
-  target_include_directories(nlohmann_json SYSTEM INTERFACE "json/single_include")
+  add_submodule(json)
   sgct_register_package(nlohmann_json nlohmann_json::nlohmann_json)
 elseif (TARGET nlohmann_json)
   sgct_register_package(nlohmann_json nlohmann_json::nlohmann_json)
@@ -236,3 +238,11 @@ if (SGCT_DEP_INCLUDE_JSON_VALIDATOR)
 else ()
   find_package(nlohmann_json_schema_validator REQUIRED)
 endif ()
+
+if (SGCT_DEP_INCLUDE_SCALABLE AND WIN32)
+  add_subdirectory(scalable SYSTEM)
+endif ()
+
+if (WIN32 AND SGCT_NDI_SUPPORT)
+  add_subdirectory(ndi SYSTEM)
+endif (WIN32 AND SGCT_NDI_SUPPORT)

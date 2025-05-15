@@ -2,13 +2,13 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
+#include "box.h"
 #include <sgct/sgct.h>
 #include <sgct/opengl.h>
-#include <sgct/utils/box.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -27,7 +27,7 @@
 
 
 namespace {
-    std::unique_ptr<sgct::utils::Box> box;
+    std::unique_ptr<Box> box;
     GLint matrixLoc = -1;
     GLint flipLoc = -1;
     GLuint texture = 0;
@@ -103,7 +103,7 @@ bool bindSpout() {
     return false;
 }
 
-void draw(RenderData data) {
+void draw(const RenderData& data) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
@@ -121,7 +121,8 @@ void draw(RenderData data) {
         static_cast<float>(currentTime * (Speed / 2.0)),
         glm::vec3(1.f, 0.f, 0.f)
     );
-    const glm::mat4 mvp = glm::make_mat4(data.modelViewProjectionMatrix.values) * scene;
+    const glm::mat4 mvp =
+        glm::make_mat4(data.modelViewProjectionMatrix.values.data()) * scene;
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -169,7 +170,7 @@ void initOGL(GLFWwindow*) {
     senderName[0] = '\0';
     receiver = GetSpout();
 
-    box = std::make_unique<utils::Box>(2.f, utils::Box::TextureMappingMode::Regular);
+    box = std::make_unique<Box>(2.f, Box::TextureMappingMode::Regular);
 
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);

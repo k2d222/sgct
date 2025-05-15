@@ -2,13 +2,13 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
+#include "box.h"
 #include <sgct/sgct.h>
 #include <sgct/opengl.h>
-#include <sgct/utils/box.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -19,7 +19,7 @@ namespace {
 
     unsigned int textureId = 0;
 
-    std::unique_ptr<sgct::utils::Box> box;
+    std::unique_ptr<Box> box;
     GLint matrixLoc = -1;
 
     double currentTime(0.0);
@@ -60,17 +60,17 @@ namespace {
 
 using namespace sgct;
 
-void networkConnectionUpdated(Network* conn) {
-    if (conn->isServer()) {
+void networkConnectionUpdated(Network& conn) {
+    if (conn.isServer()) {
         // wake up the connection handler thread on server if node disconnects to enable
         // reconnection
-        conn->startConnectionConditionVar().notify_all();
+        conn.startConnectionConditionVar().notify_all();
     }
 
-    connected = conn->isConnected();
+    connected = conn.isConnected();
 
     Log::Info(std::format(
-        "Network is {}", conn->isConnected() ? "connected" : "disconneced"
+        "Network is {}", conn.isConnected() ? "connected" : "disconneced"
     ));
 }
 
@@ -192,7 +192,8 @@ void draw(const RenderData& data) {
         glm::vec3(1.f, 0.f, 0.f)
     );
 
-    const glm::mat4 mvp = glm::make_mat4(data.modelViewProjectionMatrix.values) * scene;
+    const glm::mat4 mvp =
+        glm::make_mat4(data.modelViewProjectionMatrix.values.data()) * scene;
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -214,7 +215,7 @@ void preSync() {
 
 void initOGL(GLFWwindow*) {
     textureId = TextureManager::instance().loadTexture("box.png", true, 8.f);
-    box = std::make_unique<utils::Box>(2.f, utils::Box::TextureMappingMode::Regular);
+    box = std::make_unique<Box>(2.f, Box::TextureMappingMode::Regular);
 
     // Set up backface culling
     glCullFace(GL_BACK);
@@ -226,10 +227,6 @@ void initOGL(GLFWwindow*) {
     matrixLoc = glGetUniformLocation(prg.id(), "mvp");
     glUniform1i(glGetUniformLocation(prg.id(), "tex"), 0);
     prg.unbind();
-
-    for (const std::unique_ptr<Window>& win : Engine::instance().windows()) {
-        win->setWindowTitle(isServer ? "SERVER" : "CLIENT");
-    }
 }
 
 std::vector<std::byte> encode() {

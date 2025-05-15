@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -27,7 +27,7 @@ Buffer generateDomeProjectionMesh(const std::filesystem::path& path, const vec2&
 
     Log::Info(std::format("Reading DomeProjection mesh data from '{}'", path));
 
-    std::ifstream meshFile(path);
+    std::ifstream meshFile = std::ifstream(path);
     if (!meshFile.good()) {
         throw Error(
             Error::Component::DomeProjection, 2010,

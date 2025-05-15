@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -62,7 +62,7 @@ Buffer generateScissMesh(const std::filesystem::path& path, BaseViewport& parent
     Log::Info(std::format("Reading SCISS mesh data from '{}'", path));
 
     
-    std::ifstream file(path, std::ifstream::binary);
+    std::ifstream file = std::ifstream(path, std::ifstream::binary);
     if (!file.good()) {
         throw Error(2070, std::format("Failed to open '{}'", path));
     }

@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -55,7 +55,7 @@ public:
      */
     void setTransform(mat4 mat);
 
-    mat4 getTransform() const;
+    mat4 transform() const;
     double scale() const;
 
     const std::string& name() const;

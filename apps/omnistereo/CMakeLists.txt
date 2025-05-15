@@ -2,11 +2,11 @@
 # SGCT                                                                                   #
 # Simple Graphics Cluster Toolkit                                                        #
 #                                                                                        #
-# Copyright (c) 2012-2024                                                                #
+# Copyright (c) 2012-2025                                                                #
 # For conditions of distribution and use, see copyright notice in LICENSE.md             #
 ##########################################################################################
 
-add_executable(omnistereo main.cpp)
+add_executable(omnistereo main.cpp box.cpp domegrid.cpp)
 set_compile_options(omnistereo)
 find_package(glm REQUIRED)
 target_link_libraries(omnistereo PRIVATE sgct::sgct glm::glm)

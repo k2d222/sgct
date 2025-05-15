@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -49,8 +49,8 @@ namespace {
 
     bool takeScreenshot = false;
     bool captureBackbuffer = false;
-    bool renderGrid = true;
-    bool renderBox = false;
+    bool renderGrid = false;
+    bool renderBox = true;
     bool showId = false;
     bool showStats = false;
 
@@ -451,7 +451,7 @@ void initGL(GLFWwindow*) {
 }
 
 void postSyncPreDraw() {
-    Settings::instance().setCaptureFromBackBuffer(captureBackbuffer);
+    Engine::instance().setCaptureFromBackBuffer(captureBackbuffer);
     Engine::instance().setStatsGraphVisibility(showStats);
     if (takeScreenshot) {
         Log::Info("Triggering screenshot");
@@ -478,7 +478,7 @@ void draw(const RenderData& data) {
 
     if (renderGrid) {
         ShaderManager::instance().shaderProgram("grid").bind();
-        glUniformMatrix4fv(grid.mvpMatrixLocation, 1, GL_FALSE, mvp.values);
+        glUniformMatrix4fv(grid.mvpMatrixLocation, 1, GL_FALSE, mvp.values.data());
         glUniformMatrix4fv(grid.cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(c));
         glBindVertexArray(grid.vao);
         glDrawElements(GL_LINE_STRIP, grid.nVertLine, GL_UNSIGNED_SHORT, nullptr);
@@ -488,7 +488,7 @@ void draw(const RenderData& data) {
 
     if (renderBox) {
         ShaderManager::instance().shaderProgram("box").bind();
-        glUniformMatrix4fv(box.mvpMatrixLocation, 1, GL_FALSE, mvp.values);
+        glUniformMatrix4fv(box.mvpMatrixLocation, 1, GL_FALSE, mvp.values.data());
         glUniformMatrix4fv(box.cameraMatrixLocation, 1, GL_FALSE, glm::value_ptr(c));
         glBindVertexArray(box.vao);
 
@@ -515,9 +515,9 @@ void draw2D(const RenderData& data) {
 #ifdef SGCT_HAS_TEXT
     if (showId) {
         const float w =
-            static_cast<float>(data.window.resolution().x) * data.viewport.size().x;
+            static_cast<float>(data.window.windowResolution().x) * data.viewport.size().x;
         const float h =
-            static_cast<float>(data.window.resolution().y) * data.viewport.size().y;
+            static_cast<float>(data.window.windowResolution().y) * data.viewport.size().y;
 
         const float offset = w / 2.f - w / 7.f;
 

@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -217,13 +217,15 @@ void draw(const RenderData& data) {
     const ShaderProgram& prog = ShaderManager::instance().shaderProgram("xform");
     prog.bind();
 
-    const glm::mat4 mvp = glm::make_mat4(data.modelViewProjectionMatrix.values) * scene;
+    const glm::mat4 mvp =
+        glm::make_mat4(data.modelViewProjectionMatrix.values.data()) * scene;
     glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-    const glm::mat4 mv = glm::make_mat4(data.viewMatrix.values) *
-        glm::make_mat4(data.modelMatrix.values) * scene;
+    const glm::mat4 mv = glm::make_mat4(data.viewMatrix.values.data()) *
+        glm::make_mat4(data.modelMatrix.values.data()) * scene;
     glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mv));
     const glm::mat4 mvLight =
-        glm::make_mat4(data.viewMatrix.values) * glm::make_mat4(data.modelMatrix.values);
+        glm::make_mat4(data.viewMatrix.values.data()) *
+        glm::make_mat4(data.modelMatrix.values.data());
     glUniformMatrix4fv(mvLightLoc, 1, GL_FALSE, glm::value_ptr(mvLight));
     const glm::mat3 normal = glm::inverseTranspose(glm::mat3(mv));
     glUniformMatrix3fv(nmLoc, 1, GL_FALSE, glm::value_ptr(normal));
@@ -362,11 +364,6 @@ void keyboard(Key key, Modifier, Action action, int, Window*) {
                 break;
             case Key::Space:
                 mPause = !mPause;
-                break;
-            case Key::F:
-                for (const std::unique_ptr<Window>& win : Engine::instance().windows()) {
-                    win->setUseFXAA(!win->useFXAA());
-                }
                 break;
             case Key::P:
             case Key::F10:

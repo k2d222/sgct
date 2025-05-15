@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2024                                                               *
+ * Copyright (c) 2012-2025                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -24,8 +24,8 @@
 namespace {
     glm::mat4 setupOrthoMat(const sgct::Window& win, const sgct::BaseViewport& vp) {
         const sgct::vec2 res = sgct::vec2{
-            static_cast<float>(win.resolution().x),
-            static_cast<float>(win.resolution().y)
+            static_cast<float>(win.windowResolution().x),
+            static_cast<float>(win.windowResolution().y)
         };
         const sgct::vec2 size = vp.size();
         const sgct::vec2 scale = win.scale();

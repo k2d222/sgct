@@ -2,11 +2,11 @@
 # SGCT                                                                                   #
 # Simple Graphics Cluster Toolkit                                                        #
 #                                                                                        #
-# Copyright (c) 2012-2024                                                                #
+# Copyright (c) 2012-2025                                                                #
 # For conditions of distribution and use, see copyright notice in LICENSE.md             #
 ##########################################################################################
 
-add_executable(spoutbrowser main.cpp)
+add_executable(spoutbrowser main.cpp box.cpp)
 set_compile_options(spoutbrowser)
 find_package(glm REQUIRED)
 target_link_libraries(spoutbrowser PRIVATE sgct::sgct glm::glm)
