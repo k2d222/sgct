@@ -8,6 +8,7 @@
 
 #include "sgct/math.h"
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/scalar_constants.hpp>
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <sgct/projection/nonlinearprojection.h>
@@ -389,21 +390,36 @@ void NonLinearProjection::renderCubeFace(const BaseViewport& vp, int idx,
         attachTextures(idx);
     }
 
+    // spherical display patch (mbr):
+    // The projection matrix is turned inside-out, such that the near plane is at the far and the
+    // far is at the near. This way the camera looks outside-in (from away towards the camera) and
+    // that corresponds to a z-axis mirror.
+    // But doing just that breaks the cubemap seams somehow, so we have to mirror x and y too.
+    // (I suspect that the proj matrix is used in the fisheye stitching process, but idk)
+    // But doing that is like turning the camera 180 degrees, so we undo that too on the view matrix.
+    // note also that looking outside-in, we see the back-side of screenspace renderables. So we
+    // have to x-mirror them too, see screenspacerenderable.cpp:draw()
     glm::mat4 proj;
     std::memcpy(glm::value_ptr(proj), vp.projection(mode).projectionMatrix().values.data(), sizeof(sgct::mat4));
     proj = glm::scale(proj, glm::vec3(-1.f, -1.f, -1.f));
     sgct::mat4 sgctProj;
     std::memcpy(sgctProj.values.data(), glm::value_ptr(proj), sizeof(sgct::mat4));
+    
+    glm::mat4 view;
+    std::memcpy(glm::value_ptr(view), vp.projection(mode).viewMatrix().values.data(), sizeof(sgct::mat4));
+    view = glm::scale(view, glm::vec3(-1.f, -1.f, 1.f)); // rotate 180 deg around z
+    sgct::mat4 sgctView;
+    std::memcpy(sgctView.values.data(), glm::value_ptr(view), sizeof(sgct::mat4));
 
     const RenderData renderData = {
-        vp.window(),
-        vp,
-        mode,
-        ClusterManager::instance().sceneTransform(),
-        vp.projection(mode).viewMatrix(),
-        sgctProj,
-        ClusterManager::instance().sceneTransform(),
-        _cubemapResolution
+        .window = vp.window(),
+        .viewport = vp,
+        .frustumMode = mode,
+        .modelMatrix = ClusterManager::instance().sceneTransform(),
+        .viewMatrix = sgctView,
+        .projectionMatrix = sgctProj,
+        .modelViewProjectionMatrix = ClusterManager::instance().sceneTransform(),
+        .bufferSize = _cubemapResolution
     };
     glLineWidth(1.f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
