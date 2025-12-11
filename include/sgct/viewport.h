@@ -11,13 +11,16 @@
 
 #include <sgct/sgctexports.h>
 #include <sgct/baseviewport.h>
+
 #include <sgct/correctionmesh.h>
+#include <sgct/window.h>
+#include <cstdint>
 #include <filesystem>
 #include <memory>
-#include <string>
-#include <vector>
 
 namespace sgct {
+
+namespace config { struct Viewport; }
 
 class NonLinearProjection;
 

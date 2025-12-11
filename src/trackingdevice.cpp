@@ -21,6 +21,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
+#include <cstring>
+#include <utility>
 
 namespace sgct {
 
@@ -88,7 +90,7 @@ void TrackingDevice::setSensorTransform(vec3 vec, quat rot) {
         _worldTransformPrevious = std::move(_worldTransform);
         const glm::mat4 m = parentTrans * sensorTransMat * sensorRotMat *
                             glm::make_mat4(_deviceTransform.values.data());
-        std::memcpy(&_worldTransform, glm::value_ptr(m), 16 * sizeof(float));
+        std::memcpy(_worldTransform.values.data(), glm::value_ptr(m), 16 * sizeof(float));
     }
     setTrackerTimeStamp();
 }
@@ -164,7 +166,11 @@ void TrackingDevice::calculateTransform() {
         glm::mat4(1.f),
         glm::make_vec3(&_offset.x)) * glm::mat4_cast(glm::make_quat(&_orientation.x)
     );
-    std::memcpy(&_deviceTransform, glm::value_ptr(transMat), 16 * sizeof(float));
+    std::memcpy(
+        _deviceTransform.values.data(),
+        glm::value_ptr(transMat),
+        16 * sizeof(float)
+    );
 }
 
 int TrackingDevice::sensorId() const {

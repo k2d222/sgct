@@ -6,16 +6,20 @@
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
+#include <sgct/actions.h>
+#include <sgct/baseviewport.h>
 #include <sgct/engine.h>
 #include <sgct/clustermanager.h>
 #include <sgct/commandline.h>
 #include <sgct/error.h>
 #include <sgct/fontmanager.h>
-#include <sgct/internalshaders.h>
+#include <sgct/keys.h>
 #include <sgct/log.h>
+#include <sgct/modifiers.h>
+#include <sgct/mouse.h>
+#include <sgct/network.h>
 #include <sgct/networkmanager.h>
 #include <sgct/node.h>
-#include <sgct/offscreenbuffer.h>
 #include <sgct/profiling.h>
 #include <sgct/shadermanager.h>
 #include <sgct/shareddata.h>
@@ -25,13 +29,18 @@
 #include <sgct/trackingmanager.h>
 #endif // SGCT_HAS_VRPN
 #include <sgct/version.h>
-#include <sgct/projection/nonlinearprojection.h>
+#include <sgct/window.h>
+#include <algorithm>
+#include <chrono>
 #include <iostream>
+#include <iterator>
 #include <numeric>
 #include <mutex>
+#include <stdexcept>
 
 #ifdef WIN32
 #include <glad/glad_wgl.h>
+#include <Windows.h>
 #else // ^^^^ WIN32 // !WIN32 vvvv
 #include <glad/glad.h>
 #endif // WIN32
@@ -270,12 +279,17 @@ Engine::Engine(config::Cluster cluster, Callbacks callbacks, const Configuration
     if (cluster.threadAffinity) {
 #ifdef WIN32
         SetThreadAffinityMask(GetCurrentThread(), *cluster.threadAffinity);
-#else
+#else // ^^^^ WIN32 // !WIN32 vvvv
         Log::Error("Using thread affinity on an operating system that is not supported");
 #endif // WIN32
     }
     {
         ZoneScopedN("GLFW initialization");
+
+#ifdef __APPLE__
+        glfwInitHint(GLFW_COCOA_MENUBAR, GLFW_FALSE);
+#endif // __APPLE__
+
         glfwSetErrorCallback(
             [](int error, const char* desc) {
                 throw Err(3010, std::format("GLFW error ({}): {}", error, desc));
@@ -362,6 +376,9 @@ void Engine::initialize() {
 #endif // __APPLE__
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
         GLFWwindow* offscreen = glfwCreateWindow(128, 128, "", nullptr, nullptr);
+        if (!offscreen) {
+            throw Err(3007, "Error creating OpenGL context when initializing the engine");
+        }
         glfwMakeContextCurrent(offscreen);
         gladLoadGL();
 
@@ -1061,6 +1078,16 @@ float Engine::statsGraphScale() const {
 void Engine::setStatsGraphScale(float scale) {
     if (_statisticsRenderer) {
         _statisticsRenderer->setScale(scale);
+    }
+}
+
+vec2 Engine::statsGraphOffset() const {
+    return _statisticsRenderer ? _statisticsRenderer->offset() : vec2(-1.f, -1.f);
+}
+
+void Engine::setStatsGraphOffset(vec2 offset) {
+    if (_statisticsRenderer) {
+        _statisticsRenderer->setOffset(offset);
     }
 }
 

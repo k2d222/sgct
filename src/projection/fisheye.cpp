@@ -8,7 +8,6 @@
 
 #include <sgct/projection/fisheye.h>
 
-#include <sgct/clustermanager.h>
 #include <sgct/engine.h>
 #include <sgct/internalshaders.h>
 #include <sgct/log.h>
@@ -17,9 +16,12 @@
 #include <sgct/profiling.h>
 #include <sgct/user.h>
 #include <sgct/window.h>
-
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
+#include <cstdint>
+#include <stdexcept>
+#include <string_view>
+#include <utility>
 
 namespace {
     struct Vertex {
@@ -342,7 +344,7 @@ void FisheyeProjection::initViewports() {
     if (_method == FisheyeMethod::FiveFaceCube &&
         _fov >= topFaceLimit && _fov <= fiveFaceLimit)
     {
-        const float cosAngle = cos(glm::radians(_fov / 2.f));
+        const float cosAngle = std::cos(glm::radians(_fov / 2.f));
         const float normalizedProjectionOffset =
             _fov < 180.f ?
                 1.f - _fov / 180.f :

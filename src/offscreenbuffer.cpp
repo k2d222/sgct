@@ -12,6 +12,7 @@
 #include <sgct/log.h>
 #include <sgct/opengl.h>
 #include <algorithm>
+#include <sgct/engine.h>
 
 // @TODO (abock, 2020-01-07) It would probably be better to only create a single offscreen
 // buffer of the maximum window size and reuse that between all windows.  That way we
@@ -309,7 +310,9 @@ bool OffScreenBuffer::isMultiSampled() const {
     return _isMultiSampled;
 }
 
-void OffScreenBuffer::attachColorTexture(unsigned int texId, GLenum attachment) const {
+void OffScreenBuffer::attachColorTexture(unsigned int texId,
+                                         unsigned int attachment) const
+{
     glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texId, 0);
 }
 
@@ -318,7 +321,7 @@ void OffScreenBuffer::attachDepthTexture(unsigned int texId) const {
 }
 
 void OffScreenBuffer::attachCubeMapTexture(unsigned int texId, unsigned int face,
-                                           GLenum attachment) const
+                                           unsigned int attachment) const
 {
     glFramebufferTexture2D(
         GL_FRAMEBUFFER,

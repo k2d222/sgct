@@ -17,11 +17,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
+#include <sstream>
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#define VC_EXTRALEAN
 #include <Windows.h>
 #endif // WIN32
 
@@ -100,13 +98,27 @@ FontManager::FontManager() {
 
     // Set default font path
 #ifdef WIN32
-    constexpr int BufferSize = 256;
-    char FontDir[BufferSize];
-    const UINT success = GetWindowsDirectory(FontDir, 256);
+#ifdef UNICODE
+    constexpr int BufferSize = MAX_PATH;
+    WCHAR winDir[BufferSize];
+    const UINT success = GetWindowsDirectoryW(winDir, BufferSize);
     if (success > 0) {
-        SystemFontPath = FontDir;
-        SystemFontPath += "\\Fonts\\";
+        std::wstringstream ss;
+        ss << winDir << "\\Fonts\\";
+        std::wstring wSystemFontPath = ss.str();
+        SystemFontPath = std::string(wSystemFontPath.begin(), wSystemFontPath.end());
     }
+#else // !UNICODE
+    constexpr int BufferSize = 256;
+    char winDir[BufferSize];
+    const UINT success = GetWindowsDirectoryA(winDir, BufferSize);
+    if (success > 0) {
+        std::stringstream ss;
+        ss << winDir << "\\Fonts\\";
+        std::string wSystemFontPath = ss.str();
+        SystemFontPath = std::string(wSystemFontPath.begin(), wSystemFontPath.end());
+    }
+#endif // UNICODE
 #elif defined(__APPLE__)
     // System Fonts
     SystemFontPath = "/System/Library/Fonts/";
@@ -135,9 +147,11 @@ void FontManager::bindShader(const mat4& mvp, const vec4& color, int texture) co
     glUniformMatrix4fv(_mvpLocation, 1, GL_FALSE, mvp.values.data());
 }
 
-bool FontManager::addFont(std::string name, std::string file) {
+bool FontManager::addFont(std::string name, std::string file, bool isAbsolutePath) {
     // Perform file exists check
-    file = SystemFontPath + file;
+    if (!isAbsolutePath) {
+        file = SystemFontPath + file;
+    }
 
     const bool inserted = _fontPaths.insert({ name, std::move(file) }).second;
     if (!inserted) {

@@ -10,10 +10,13 @@
 #define __SGCT__USER__H__
 
 #include <sgct/sgctexports.h>
+
 #include <sgct/math.h>
 #include <string>
 
 namespace sgct {
+
+namespace config { struct User; }
 
 /**
  * Helper class for setting user variables.
@@ -50,7 +53,9 @@ public:
      * Set the user's head orientation using euler angles. Note that rotations are
      * dependent of each other, total `rotation = xRot * yRot * zRot`.
      *
-     * \param xRot, yRot, zRot The rotations around the x, y, and z axes
+     * \param xRot The rotations around the x axes
+     * \param yRot The rotations around the y axes
+     * \param zRot The rotations around the z axes
      */
     void setOrientation(float xRot, float yRot, float zRot);
 

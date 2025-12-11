@@ -9,10 +9,7 @@
 #include <sgct/networkmanager.h>
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#define VC_EXTRALEAN
-#include <windows.h>
+#include <Windows.h>
 #endif // WIN32
 
 #include <sgct/clustermanager.h>
@@ -25,22 +22,27 @@
 #include <sgct/profiling.h>
 #include <sgct/shareddata.h>
 #include <algorithm>
+#include <array>
+#include <chrono>
 #include <cstring>
-#include <numeric>
+#include <limits>
+#include <stdexcept>
+#include <thread>
 
 #ifdef WIN32
-    #include <ws2tcpip.h>
+#include <ws2def.h>
+#include <ws2tcpip.h>
 #else // ^^^^ WIN32 // !WIN32 vvvv
-    // Use BSD sockets
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <netdb.h>
-    #include <unistd.h>
+// Use BSD sockets
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 #endif // WIN32
 
-#define Error(code, msg) Error(Error::Component::Network, code, msg)
+#define Err(code, msg) Error(Error::Component::Network, code, msg)
 
 namespace {
 
@@ -125,7 +127,7 @@ NetworkManager::NetworkManager(NetworkMode nm,
         if (err != 0 || LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
             // incorrect WinSock version
             WSACleanup();
-            throw Error(5020, "Winsock 2.2 startup failed");
+            throw Err(5020, "Winsock 2.2 startup failed");
         }
     }
 #endif // WIN32
@@ -148,7 +150,7 @@ NetworkManager::NetworkManager(NetworkMode nm,
 #ifdef WIN32
             WSACleanup();
 #endif // WIN32
-            throw Error(5027, "Failed to get local host name");
+            throw Err(5027, "Failed to get local host name");
         }
     }
 
@@ -180,7 +182,7 @@ NetworkManager::NetworkManager(NetworkMode nm,
 #endif // __APPLE__
     if (result != 0) {
             std::string err = std::to_string(Network::lastError());
-            throw Error(5028, std::format("Failed to get address info: {}", err));
+            throw Err(5028, std::format("Failed to get address info: {}", err));
         }
     }
     std::vector<std::string> dnsNames;
@@ -270,13 +272,13 @@ void NetworkManager::initialize() {
     }
 
     if (cm.thisNode().address().empty()) {
-        throw Error(5021, "No address information for this node available");
+        throw Err(5021, "No address information for this node available");
     }
 
     std::string remoteAddress;
     if (_mode == NetworkMode::Remote) {
         if (cm.masterAddress().empty()) {
-            throw Error(5022, "No address information for master available");
+            throw Err(5022, "No address information for master available");
         }
         remoteAddress = cm.masterAddress();
     }
@@ -299,7 +301,7 @@ void NetworkManager::initialize() {
             if (port == cm.thisNode().syncPort() ||
                 port == cm.thisNode().dataTransferPort())
             {
-                throw Error(
+                throw Err(
                     5023,
                     std::format(
                         "Port {} is already used by connection {}",
@@ -602,11 +604,11 @@ void NetworkManager::addConnection(int port, std::string address,
     ZoneScoped;
 
     if (port == 0) {
-        throw Error(5025, std::format("No port provided for connection to {}", address));
+        throw Err(5025, std::format("No port provided for connection to {}", address));
     }
 
     if (address.empty()) {
-        throw Error(5026, std::format("Empty address for connection to {}", port));
+        throw Err(5026, std::format("Empty address for connection to {}", port));
     }
 
     auto net = std::make_unique<Network>(

@@ -7,25 +7,41 @@
  ****************************************************************************************/
 
 #include <sgct/window.h>
+
+#include <sgct/callbackdata.h>
 #include <sgct/clustermanager.h>
 #include <sgct/config.h>
+#include <sgct/definitions.h>
 #include <sgct/engine.h>
 #include <sgct/error.h>
-#include <sgct/format.h>
 #include <sgct/internalshaders.h>
 #include <sgct/log.h>
+#include <sgct/math.h>
 #include <sgct/networkmanager.h>
 #include <sgct/node.h>
 #include <sgct/offscreenbuffer.h>
-#include <sgct/opengl.h>
 #include <sgct/profiling.h>
-#include <sgct/screencapture.h>
-#include <sgct/statisticsrenderer.h>
-#include <sgct/texturemanager.h>
 #include <sgct/projection/nonlinearprojection.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <sgct/screencapture.h>
+#include <sgct/shaderprogram.h>
+#include <sgct/statisticsrenderer.h>
+#include <sgct/viewport.h>
+#include <glad/glad.h>
 #include <glm/gtc/quaternion.hpp>
 #include <algorithm>
+#include <array>
+#include <cassert>
+#include <cmath>
+#include <cstdint>
+#include <format>
+#include <functional>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 #ifdef SGCT_HAS_SCALABLE
 #include "EasyBlendSDK.h"
@@ -42,9 +58,6 @@
 #endif // SGCT_HAS_SPOUT
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#define VC_EXTRALEAN
 #include <Windows.h>
 #include <glad/glad_wgl.h>
 #endif // WIN32
@@ -178,7 +191,7 @@ namespace {
 
 namespace sgct {
 
-GLFWwindow* _activeContext = nullptr;
+static GLFWwindow* _activeContext = nullptr;
 
 bool Window::_useSwapGroups = false;
 bool Window::_isBarrierActive = false;
@@ -499,7 +512,6 @@ void Window::openWindow(GLFWwindow* share, bool isLastWindow) {
         }
 #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_COCOA_MENUBAR, GLFW_FALSE);
 #endif // __APPLE__
         if (!_isVisible) {
             glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -543,12 +555,26 @@ void Window::openWindow(GLFWwindow* share, bool isLastWindow) {
     {
         ZoneScopedN("glfwCreateWindow");
         assert(_windowRes);
-        _windowHandle = glfwCreateWindow(_windowRes->x, _windowRes->y, "SGCT", mon, share);
+        _windowHandle = glfwCreateWindow(
+            _windowRes->x,
+            _windowRes->y,
+            "SGCT",
+            mon,
+            share
+        );
         glfwSetWindowUserPointer(_windowHandle, this);
         if (_windowHandle == nullptr) {
             throw Err(8000, "Error opening GLFW window");
         }
     }
+
+    glfwSetWindowIconifyCallback(
+        _windowHandle,
+        [](GLFWwindow* window, int iconified) {
+            Window* win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+            win->_isIconified = iconified != 0;
+        }
+    );
 
     {
         ZoneScopedN("glfwMakeContextCurrent");
@@ -557,7 +583,7 @@ void Window::openWindow(GLFWwindow* share, bool isLastWindow) {
     }
 
     // Mac for example scales the window size != frame buffer size
-    glm::ivec2 bufferSize;
+    glm::ivec2 bufferSize = glm::ivec2(0);
     {
         ZoneScopedN("glfwGetFramebufferSize");
         glfwGetFramebufferSize(_windowHandle, &bufferSize[0], &bufferSize[1]);
@@ -906,7 +932,7 @@ void Window::updateResolutions() {
 void Window::update() {
     ZoneScoped;
 
-    if (!_isVisible || !isWindowResized()) {
+    if (!isVisible() || !isWindowResized()) {
         return;
     }
     makeOpenGLContextCurrent();
@@ -939,7 +965,7 @@ void Window::update() {
 void Window::draw() {
     ZoneScopedN("Render window");
 
-    if (!(isVisible() || isRenderingWhileHidden())) [[unlikely]] {
+    if (!isRenderingWhileHidden() && (!isVisible() || _isIconified)) [[unlikely]] {
         return;
     }
 
@@ -996,7 +1022,7 @@ void Window::draw() {
 void Window::renderFBOTexture() {
     ZoneScoped;
 
-    if (!_isVisible) [[unlikely]] {
+    if (!isVisible()) [[unlikely]] {
         return;
     }
 
@@ -1112,9 +1138,9 @@ void Window::renderFBOTexture() {
         glCopyTexImage2D(
             GL_TEXTURE_2D,
             0,
-            0,
-            0,
             _internalColorFormat,
+            0,
+            0,
             _framebufferRes.x,
             _framebufferRes.y,
             0
@@ -1178,7 +1204,7 @@ void Window::renderFBOTexture() {
 }
 
 void Window::swapBuffers(bool takeScreenshot) {
-    if (!(_isVisible || _shouldRenderWhileHidden)) {
+    if (!(isVisible() || _shouldRenderWhileHidden)) {
         return;
     }
 

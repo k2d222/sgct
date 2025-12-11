@@ -18,6 +18,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
+#include <cstring>
+#include <functional>
+#include <stdexcept>
+#include <utility>
 
 namespace sgct {
 
@@ -81,7 +85,11 @@ ClusterManager::ClusterManager(const config::Cluster& cluster, int clusterID)
             glm::scale(glm::mat4(1.f), glm::vec3(*cluster.scene->scale)) : glm::mat4(1.f);
 
         glm::mat4 complete = rotation * translate * scale;
-        std::memcpy(&_sceneTransform, glm::value_ptr(complete), sizeof(sgct::mat4));
+        std::memcpy(
+            _sceneTransform.values.data(),
+            glm::value_ptr(complete),
+            sizeof(sgct::mat4)
+        );
     }
 }
 

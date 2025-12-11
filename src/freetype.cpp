@@ -10,16 +10,18 @@
 
 #include <sgct/freetype.h>
 
-#include <sgct/engine.h>
+#include <sgct/baseviewport.h>
 #include <sgct/font.h>
 #include <sgct/fontmanager.h>
 #include <sgct/opengl.h>
+#include <sgct/shaderprogram.h>
 #include <sgct/window.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <cstdarg>
+#include <cstring>
 #include <sstream>
+#include <utility>
 
 namespace {
     glm::mat4 setupOrthoMat(const sgct::Window& win, const sgct::BaseViewport& vp) {
@@ -105,7 +107,7 @@ void print(const Window& window, const BaseViewport& viewport, Font& font, Align
             );
             glm::mat4 scale = glm::scale(trans, glm::vec3(ffd.size.x, ffd.size.y, 1.f));
             sgct::mat4 s;
-            std::memcpy(&s, glm::value_ptr(scale), sizeof(sgct::mat4));
+            std::memcpy(s.values.data(), glm::value_ptr(scale), sizeof(sgct::mat4));
 
             FontManager::instance().bindShader(s, color, 0);
 

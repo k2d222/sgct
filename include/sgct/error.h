@@ -10,12 +10,13 @@
 #define __SGCT__ERROR__H__
 
 #include <sgct/sgctexports.h>
+
 #include <stdexcept>
 #include <string>
 
 namespace sgct {
 
-struct SGCT_EXPORT Error : public std::runtime_error {
+struct SGCT_EXPORT Error final : public std::runtime_error {
     enum class Component {
         Config,
         CorrectionMesh,
@@ -36,6 +37,7 @@ struct SGCT_EXPORT Error : public std::runtime_error {
     };
 
     Error(Component comp, int c, std::string msg);
+    ~Error() noexcept override;
 
     const Component component;
     const int code;

@@ -10,13 +10,15 @@
 #define __SGCT__STATISTICSRENDERER__H__
 
 #include <sgct/sgctexports.h>
-#include <sgct/engine.h>
-#include <sgct/shaderprogram.h>
-#include <memory>
 
-namespace sgct { class Window; }
+#include <sgct/engine.h>
+#include <sgct/math.h>
+#include <array>
 
 namespace sgct {
+
+class Viewport;
+class Window;
 
 class SGCT_EXPORT StatisticsRenderer {
 public:
@@ -28,6 +30,9 @@ public:
 
     float scale() const;
     void setScale(float scale);
+
+    vec2 offset() const;
+    void setOffset(vec2 offset);
 
 private:
     const Engine::Statistics& _statistics;
@@ -109,6 +114,7 @@ private:
     Histogram _histogram;
 
     float _scale = 0.5f;
+    vec2 _offset;
 };
 
 } // namespace sgct

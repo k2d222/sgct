@@ -8,22 +8,34 @@
 
 #include <sgct/statisticsrenderer.h>
 
+#include <sgct/engine.h>
+#include <sgct/math.h>
 #include <sgct/opengl.h>
 #include <sgct/profiling.h>
+#include <sgct/shaderprogram.h>
+#include <sgct/viewport.h>
+#include <sgct/window.h>
 #ifdef SGCT_HAS_TEXT
 #include <sgct/font.h>
 #include <sgct/fontmanager.h>
 #include <sgct/freetype.h>
 #endif // SGCT_HAS_TEXT
+#include <glad/glad.h>
+#include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
+#include <array>
+#include <format>
+#include <string_view>
+#include <tuple>
+#include <vector>
 
 namespace {
     // Line parameters
     constexpr sgct::vec4 ColorStaticGrid = sgct::vec4{ 1.f, 1.f, 1.f, 0.2f };
     constexpr sgct::vec4 ColorStaticFrequency = sgct::vec4{ 1.f, 0.f, 0.f, 1.f };
-    constexpr sgct::vec4 ColorStaticBackground = sgct::vec4{ 0.f, 0.f, 0.f, 0.5f };
+    constexpr sgct::vec4 ColorStaticBackground = sgct::vec4{ 0.f, 0.f, 0.f, 0.85f };
 
     constexpr sgct::vec4 ColorFrameTime = sgct::vec4{ 1.f, 1.f, 0.f, 0.8f };
     constexpr sgct::vec4 ColorDrawTime = sgct::vec4{ 1.f, 0.1f, 1.1f, 0.8f };
@@ -58,12 +70,7 @@ StatisticsRenderer::StatisticsRenderer(const Engine::Statistics& statistics)
     ZoneScoped;
 
     // Static background quad
-    struct sVertex {
-        sVertex(float x_, float y_) : x(x_), y(y_) {}
-        float x = 0.f;
-        float y = 0.f;
-    };
-    std::vector<sVertex> vs;
+    std::vector<Vertex> vs;
     vs.emplace_back(0.f, 0.f);
     vs.emplace_back(static_cast<float>(Engine::Statistics::HistoryLength), 0.f);
     vs.emplace_back(0.f, 1.f / 30.f);
@@ -102,7 +109,7 @@ StatisticsRenderer::StatisticsRenderer(const Engine::Statistics& statistics)
     glGenBuffers(1, &_lines.staticDraw.vbo);
     glBindVertexArray(_lines.staticDraw.vao);
     glBindBuffer(GL_ARRAY_BUFFER, _lines.staticDraw.vbo);
-    glBufferData(GL_ARRAY_BUFFER, vs.size() * sizeof(sVertex), vs.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vs.size() * sizeof(Vertex), vs.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
@@ -294,8 +301,8 @@ void StatisticsRenderer::render(const Window& window, const Viewport& viewport) 
     );
 
     const glm::vec2 penPosition = glm::vec2(
-        15.f * _scale + scaleOffset.x * (1.f - _scale),
-        10.f * _scale + scaleOffset.y * (1.f - _scale)
+        15.f * _scale + scaleOffset.x * (1.f - _scale) + _offset.x * res.x * _scale,
+        10.f * _scale + scaleOffset.y * (1.f - _scale) + _offset.y * res.y * _scale
     );
     const float penOffset = 20.f * _scale;
 
@@ -317,6 +324,7 @@ void StatisticsRenderer::render(const Window& window, const Viewport& viewport) 
 
 
         glm::mat4 m = glm::translate(orthoMat, glm::vec3(0.f, 250.f * _scale, 0.f));
+        m = glm::translate(m, glm::vec3(_offset.x * res.x, _offset.y * res.y, 0.f));
         m = glm::scale(m, glm::vec3(size.x, size.y, 1.f));
         glUniformMatrix4fv(_mvpLoc, 1, GL_FALSE, glm::value_ptr(m));
 
@@ -433,9 +441,12 @@ void StatisticsRenderer::render(const Window& window, const Viewport& viewport) 
         ZoneScopedN("Histogram");
 
         auto renderHistogram = [&](int i, const vec4& color) {
-            const auto [pos, size] = [this](int j) -> std::tuple<glm::vec2, glm::vec2> {
-                const glm::vec2 p = glm::vec2(400.f * _scale, 10.f * _scale);
-                const glm::vec2 s = glm::vec2(425.f *_scale, 200.f * _scale);
+            const auto [pos, size] = [&](int j) -> std::tuple<glm::vec2, glm::vec2> {
+                const glm::vec2 p = glm::vec2(
+                    400.f * _scale + _offset.x * res.x,
+                    10.f * _scale + _offset.y * res.y
+                );
+                const glm::vec2 s = glm::vec2(425.f, 200.f) * _scale;
 
                 if (j == 0) {
                     // Full size
@@ -514,6 +525,14 @@ float StatisticsRenderer::scale() const {
 
 void StatisticsRenderer::setScale(float scale) {
     _scale = scale;
+}
+
+vec2 StatisticsRenderer::offset() const {
+    return _offset;
+}
+
+void StatisticsRenderer::setOffset(vec2 offset) {
+    _offset = std::move(offset);
 }
 
 } // namespace sgct

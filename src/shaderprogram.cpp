@@ -12,6 +12,8 @@
 #include <sgct/format.h>
 #include <sgct/log.h>
 #include <sgct/opengl.h>
+#include <stdexcept>
+#include <utility>
 
 #define Err(code, msg) Error(Error::Component::Shader, code, msg)
 
@@ -40,7 +42,7 @@ namespace {
             case GL_FRAGMENT_SHADER: return "Fragment shader";
             case GL_GEOMETRY_SHADER: return "Geometry shader";
             default:                 throw std::logic_error("Unhandled case label");
-        };
+        }
     }
 
     void checkCompilationStatus(GLenum type, GLint id) {
