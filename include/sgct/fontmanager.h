@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <string>
 #include <utility>
 
-typedef struct FT_LibraryRec_ *FT_Library;
+typedef struct FT_LibraryRec_* FT_Library;
 
 namespace sgct::text {
 

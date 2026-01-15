@@ -2,12 +2,13 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
 #include <sgct/correction/pfm.h>
 
+#include <sgct/correction/buffer.h>
 #include <sgct/error.h>
 #include <sgct/format.h>
 #include <sgct/log.h>
@@ -15,7 +16,6 @@
 #include <sgct/profiling.h>
 #include <glm/glm.hpp>
 #include <scn/scan.h>
-#include <filesystem>
 #include <fstream>
 
 namespace sgct::correction {

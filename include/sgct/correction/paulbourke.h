@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -11,11 +11,12 @@
 
 #include <sgct/sgctexports.h>
 
-#include <sgct/correction/buffer.h>
 #include <sgct/math.h>
 #include <filesystem>
 
 namespace sgct::correction {
+
+struct Buffer;
 
 SGCT_EXPORT Buffer generatePaulBourkeMesh(const std::filesystem::path& path,
     const vec2& pos, const vec2& size, float aspectRatio);

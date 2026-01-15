@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -18,23 +18,22 @@
 #include <string>
 #include <vector>
 
-#ifdef SGCT_HAS_SPOUT
-struct SPOUTLIBRARY;
-typedef SPOUTLIBRARY* SPOUTHANDLE;
-#endif // SGCT_HAS_SPOUT
-
 #ifdef SGCT_HAS_NDI
 #include <Processing.NDI.Lib.h>
 #endif // SGCT_HAS_NDI
 
+#ifdef SGCT_HAS_SPOUT
+struct SPOUTLIBRARY;
+using SPOUTHANDLE = SPOUTLIBRARY*;
+#endif // SGCT_HAS_SPOUT
+
 namespace sgct {
 
 namespace config { struct CubemapProjection; }
-
 class BaseViewport;
 class OffScreenBuffer;
-class Window;
 class User;
+class Window;
 
 /**
  * This class manages and renders non-linear fisheye projections.

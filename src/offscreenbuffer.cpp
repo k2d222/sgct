@@ -2,17 +2,17 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
 #include <sgct/offscreenbuffer.h>
 
+#include <sgct/engine.h>
 #include <sgct/format.h>
 #include <sgct/log.h>
 #include <sgct/opengl.h>
 #include <algorithm>
-#include <sgct/engine.h>
 
 // @TODO (abock, 2020-01-07) It would probably be better to only create a single offscreen
 // buffer of the maximum window size and reuse that between all windows.  That way we

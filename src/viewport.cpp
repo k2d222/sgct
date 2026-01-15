@@ -2,16 +2,16 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
 #include <sgct/viewport.h>
 
-#include <sgct/baseviewport.h>
 #include <sgct/clustermanager.h>
 #include <sgct/config.h>
 #include <sgct/definitions.h>
+#include <sgct/format.h>
 #include <sgct/log.h>
 #include <sgct/math.h>
 #include <sgct/profiling.h>
@@ -22,12 +22,7 @@
 #include <sgct/projection/fisheye.h>
 #include <sgct/projection/nonlinearprojection.h>
 #include <sgct/projection/sphericalmirror.h>
-#include <sgct/window.h>
 #include <cassert>
-#include <cstdint>
-#include <filesystem>
-#include <format>
-#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <utility>

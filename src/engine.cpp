@@ -2,21 +2,17 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
-#include <sgct/actions.h>
 #include <sgct/baseviewport.h>
 #include <sgct/engine.h>
 #include <sgct/clustermanager.h>
 #include <sgct/commandline.h>
 #include <sgct/error.h>
 #include <sgct/fontmanager.h>
-#include <sgct/keys.h>
 #include <sgct/log.h>
-#include <sgct/modifiers.h>
-#include <sgct/mouse.h>
 #include <sgct/network.h>
 #include <sgct/networkmanager.h>
 #include <sgct/node.h>
@@ -29,8 +25,6 @@
 #include <sgct/trackingmanager.h>
 #endif // SGCT_HAS_VRPN
 #include <sgct/version.h>
-#include <sgct/window.h>
-#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <iterator>

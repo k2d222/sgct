@@ -2,12 +2,13 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
-#include <sgct/correction/skyskan.h>
+#include <sgct/correction/obj.h>
 
+#include <sgct/correction/buffer.h>
 #include <sgct/error.h>
 #include <sgct/format.h>
 #include <sgct/log.h>
@@ -16,7 +17,6 @@
 #include <algorithm>
 #include <cassert>
 #include <fstream>
-#include <filesystem>
 #include <string>
 #include <string_view>
 #include <vector>

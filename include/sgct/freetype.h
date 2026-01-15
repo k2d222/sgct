@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -23,7 +23,7 @@ namespace sgct::text {
 
 class Font;
 
-enum class Alignment { TopLeft, TopCenter, TopRight};
+enum class Alignment { TopLeft, TopCenter, TopRight };
 
 SGCT_EXPORT void print(const Window& window, const BaseViewport& viewport, Font& font,
     Alignment mode, float x, float y, const vec4& color, std::string text);

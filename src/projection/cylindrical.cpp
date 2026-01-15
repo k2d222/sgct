@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -11,9 +11,7 @@
 #include <sgct/baseviewport.h>
 #include <sgct/config.h>
 #include <sgct/definitions.h>
-#include <sgct/projection/nonlinearprojection.h>
 #include <sgct/projection/projectionplane.h>
-#include <sgct/shaderprogram.h>
 #include <sgct/internalshaders.h>
 #include <sgct/opengl.h>
 #include <sgct/profiling.h>

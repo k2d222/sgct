@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -16,9 +16,9 @@
 #include <sgct/math.h>
 #include <unordered_map>
 
-typedef struct FT_LibraryRec_ *FT_Library;
-typedef struct FT_GlyphRec_ *FT_Glyph;
-typedef struct FT_FaceRec_ *FT_Face;
+typedef struct FT_LibraryRec_* FT_Library;
+typedef struct FT_GlyphRec_* FT_Glyph;
+typedef struct FT_FaceRec_* FT_Face;
 typedef signed long FT_Fixed;
 
 namespace sgct::text {

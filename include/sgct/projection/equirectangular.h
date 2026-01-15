@@ -2,7 +2,7 @@
  * SGCT                                                                                  *
  * Simple Graphics Cluster Toolkit                                                       *
  *                                                                                       *
- * Copyright (c) 2012-2025                                                               *
+ * Copyright (c) 2012-2026                                                               *
  * For conditions of distribution and use, see copyright notice in LICENSE.md            *
  ****************************************************************************************/
 
@@ -18,10 +18,9 @@
 namespace sgct {
 
 namespace config { struct EquirectangularProjection; }
-
 class BaseViewport;
-class Window;
 class User;
+class Window;
 
 class SGCT_EXPORT EquirectangularProjection final : public NonLinearProjection {
 public:
